@@ -43,16 +43,17 @@ def run():
     # 1단계: 크롤링 및 데이터 수집
     logger.info("[Step 1/4] 데이터 수집 및 Fallback 처리")
     try:
-        crawl_ok, crawl_count = collect_market_data(
+        crawl_ok, crawl_info = collect_market_data(
             output_path="data/raw/crawled_market_news.csv",
             min_required=200
         )
-        if crawl_ok and crawl_count >= 200:
-            pipeline_status["Crawl"] = f"SUCCESS ({crawl_count} items)"
-            logger.info(f"Step 1 성공: {crawl_count}건 수집 완료")
+        total_crawled = crawl_info.get("total_count", 0) if isinstance(crawl_info, dict) else (crawl_info if isinstance(crawl_info, int) else 0)
+        if crawl_ok and total_crawled >= 200:
+            pipeline_status["Crawl"] = f"SUCCESS ({total_crawled} items)"
+            logger.info(f"Step 1 성공: {total_crawled}건 수집 완료")
         elif crawl_ok:
-            pipeline_status["Crawl"] = f"WARNING ({crawl_count} items < 200 target)"
-            logger.warning(f"Step 1 경고: 수집 건수 {crawl_count}건")
+            pipeline_status["Crawl"] = f"WARNING ({total_crawled} items < 200 target)"
+            logger.warning(f"Step 1 경고: 수집 건수 {total_crawled}건")
         else:
             pipeline_status["Crawl"] = "FAILED"
             logger.error("Step 1 실패: 데이터 수집 불가")
