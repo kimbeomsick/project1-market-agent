@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaFactory AI - 시장 & 경쟁사 인텔리전스 대시보드</title>
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --card-bg: #1f2937;
+            --card-border: #374151;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --glow: rgba(59, 130, 246, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(180deg, rgba(31, 41, 55, 0.8) 0%, rgba(11, 15, 25, 0) 100%);
+            border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+            padding: 32px 0 24px 0;
+            margin-bottom: 32px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-badge {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+        }
+
+        /* Overview Grid */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 36px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 22px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .tags-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            font-size: 12px;
+            padding: 3px 8px;
+            background: #374151;
+            color: #d1d5db;
+            border-radius: 6px;
+        }
+
+        .tag.highlight {
+            background: rgba(99, 102, 241, 0.2);
+            color: #a5b4fc;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Section Title */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Top 10 Highlights */
+        .top10-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 18px;
+            margin-bottom: 40px;
+        }
+
+        .top-card {
+            background: linear-gradient(145deg, #1f2937 0%, #111827 100%);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .rank-badge {
+            position: absolute;
+            top: -10px;
+            left: 18px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: white;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .top-card-header {
+            margin-top: 6px;
+            margin-bottom: 10px;
+        }
+
+        .top-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            line-height: 1.4;
+            color: #f3f4f6;
+            margin-bottom: 8px;
+        }
+
+        .score-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .score-bar {
+            flex-grow: 1;
+            height: 6px;
+            background: #374151;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            border-radius: 999px;
+        }
+
+        .score-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #34d399;
+        }
+
+        .top-card-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .top-card-reason {
+            background: rgba(55, 65, 81, 0.4);
+            border-left: 3px solid var(--accent-indigo);
+            padding: 8px 12px;
+            border-radius: 0 8px 8px 0;
+            font-size: 12px;
+            color: #c7d2fe;
+            margin-bottom: 14px;
+        }
+
+        .top-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(55, 65, 81, 0.5);
+            padding-top: 12px;
+        }
+
+        .btn-link {
+            color: #60a5fa;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Full Table Section */
+        .table-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex-grow: 1;
+            min-width: 240px;
+            background: #1f2937;
+            border: 1px solid var(--card-border);
+            padding: 10px 16px;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .filter-select {
+            background: #1f2937;
+            border: 1px solid var(--card-border);
+            padding: 10px 16px;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .table-wrap {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+
+        th {
+            background: #111827;
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--card-border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(55, 65, 81, 0.4);
+            color: #e5e7eb;
+        }
+
+        tr:hover td {
+            background: rgba(55, 65, 81, 0.3);
+        }
+
+        .badge-cat {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: #374151;
+            color: #9ca3af;
+        }
+
+        .badge-cat.경쟁사 { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .badge-cat.시장동향 { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+        .badge-cat.지원사업 { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+
+        footer {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo-group">
+                <div class="logo-badge">🤖</div>
+                <div>
+                    <h1>NovaFactory AI 시장·경쟁사 인텔리전스</h1>
+                    <div class="subtitle">제조업 AI 비전 품질검사 | 일일 자동 수집 & 맞춤 추천 리포트</div>
+                </div>
+            </div>
+            <div class="meta-badge">
+                <span>🔄 업데이트: 2026-09-19 14:34</span>
+                <span>•</span>
+                <span>분석 건수: 30건</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- Company Profile & Stats Overview -->
+        <section class="overview-grid">
+            <div class="card">
+                <div class="card-title">🏢 타깃 시장 & 제품군</div>
+                <div class="card-value" style="font-size: 18px; margin-bottom: 8px;">비전 기반 불량 탐지 SaaS</div>
+                <div class="tags-list">
+                    
+                    <span class="tag highlight">비전 기반 불량 탐지 SaaS</span>
+                    
+                    <span class="tag highlight">제조 품질 리포트 자동화</span>
+                    
+                    
+                    <span class="tag">중소·중견 제조기업</span>
+                    
+                    <span class="tag">스마트팩토리 구축 기업</span>
+                    
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🎯 주요 모니터링 경쟁사 (4)</div>
+                <div class="tags-list" style="margin-top: 10px;">
+                    
+                    <span class="tag highlight" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3);">VisionForge</span>
+                    
+                    <span class="tag highlight" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3);">InspectAI</span>
+                    
+                    <span class="tag highlight" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3);">FactoryMind</span>
+                    
+                    <span class="tag highlight" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3);">QualiBot</span>
+                    
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🔍 핵심 관심 및 정부지원 키워드</div>
+                <div class="tags-list" style="margin-top: 10px;">
+                    
+                    <span class="tag">AI</span>
+                    
+                    <span class="tag">스마트팩토리</span>
+                    
+                    <span class="tag">품질검사</span>
+                    
+                    <span class="tag">자동화</span>
+                    
+                    <span class="tag">클라우드</span>
+                    
+                    <span class="tag">제조 AX</span>
+                    
+                    
+                    <span class="tag" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7;">창업지원</span>
+                    
+                    <span class="tag" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7;">AI 바우처</span>
+                    
+                    <span class="tag" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7;">스마트공장</span>
+                    
+                    <span class="tag" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7;">R&D</span>
+                    
+                    <span class="tag" style="background: rgba(16, 185, 129, 0.15); color: #6ee7b7;">사업화 자금</span>
+                    
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📊 분석 요약</div>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px;">
+                    <div>
+                        <span class="card-value">30</span>
+                        <span style="font-size: 14px; color: var(--text-secondary);"> / 30건 선별</span>
+                    </div>
+                    <span class="meta-badge" style="font-size: 11px;">LLM 연동: Rule Engine</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- TOP 10 Recommendations -->
+        <section style="margin-bottom: 48px;">
+            <div class="section-header">
+                <h2 class="section-title">🌟 TOP 10 핵심 추천 뉴스</h2>
+                <span style="font-size: 13px; color: var(--text-secondary);">기업 적합도 및 사업 파급력 기반 랭킹</span>
+            </div>
+
+            <div class="top10-grid">
+                
+                <div class="top-card">
+                    <div class="rank-badge">#1 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-09-18</span>
+                        </div>
+                        <h3 class="top-card-title">공정 자동화 넘어 '제조AI'로… 부산, 스마트공장 2.0 대전환 속도 - 폴리뉴스 Polinews</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 24%;"></div>
+                            </div>
+                            <span class="score-text">24점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">공정 자동화 넘어 '제조AI'로… 부산, 스마트공장 2.0 대전환 속도 폴리뉴스 Polinews</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 자동화) 일치 | 정부/R&D 지원사업(스마트공장) 연계</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: 폴리뉴스 Polinews</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTE54RGtJMlZZU3N0YkhISzlqa3pKeVZvT09waDctTXZ4MlMtUnFxOXV6QTh5TFc4UklycHZWMGRnU1ZNNGdZNFd5Y0dhc2IwZXRUaTMzWmswenJfSDRtZjMtOWtYS0V1TWlrc3MyRnpn0gFyQVVfeXFMT2g1YjM0REtrQklFRUNRX3hqWENDSV82SXh2eUlHQ09oeXczNURyQWNaVlliQ0l1VHVQdDFzcC1CVG1EZkxab1hqa2hVcWU0dXNMZENmS01GbzhObm4wamkyRVdtdk05SkRJMVV4ZGcwLUtn?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+                <div class="top-card">
+                    <div class="rank-badge">#2 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-07-10</span>
+                        </div>
+                        <h3 class="top-card-title">AI 스마트팩토리와 사출성형 자동화 - 플라스틱코리아</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 24%;"></div>
+                            </div>
+                            <span class="score-text">24점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">AI 스마트팩토리와 사출성형 자동화 플라스틱코리아</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 스마트팩토리, 자동화) 일치</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: 플라스틱코리아</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMicEFVX3lxTFBBWXdXWTN1SnFwY3N0Z1RXSF9VazBZVWhrOWhNTFBkQ1lScnNKLUZhTllkWEFDcjA4ZzFmZ2xpdW82a1VXNFBWMGZHVThOYzNiMWxITFgtZ3V2WEVvZEttNnFxLXc0QWhFYk1KbzVNY1fSAXRBVV95cUxPYzlBVVZyY1NiN19na2N4SjZRbjJleUFuX1ViVnhPT2tFU19zblFaN2owbkNYWFdVdUZSdkdpT3oxbnJodGxHVjBHSTl4c1FvTUFoWFNjYVNscXhLUWdhS3ZUSWw4aGR6UU5tNTRucDZBN0czSg?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+                <div class="top-card">
+                    <div class="rank-badge">#3 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-07-08</span>
+                        </div>
+                        <h3 class="top-card-title">[스마트팩토리 특집-①] LG전자, 단순 자동화 넘어 ‘AI 팩토리’로 진화…피지컬 AI·로봇 생태계 정조준 - 테크월드</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 24%;"></div>
+                            </div>
+                            <span class="score-text">24점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">[스마트팩토리 특집-①] LG전자, 단순 자동화 넘어 ‘AI 팩토리’로 진화…피지컬 AI·로봇 생태계 정조준 테크월드</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 스마트팩토리, 자동화) 일치</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: 테크월드</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE5ZcHJQY1BTNkZ6ZlMtcFZPMU5sb20wZW1IRlZUZGZtWDFNVzltMzVzVm5fU1hjY3ZscU4wSmZOdFh5eTNyd2FsTEw5UEZYZHQzLW1BREFHdFY1UnU1NEpQLTNrNUdva2pR?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+                <div class="top-card">
+                    <div class="rank-badge">#4 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-05-27</span>
+                        </div>
+                        <h3 class="top-card-title">[칼럼] 스마트팩토리는 자동화가 아니라, AI를 위한 준비다 - FA저널</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 24%;"></div>
+                            </div>
+                            <span class="score-text">24점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">[칼럼] 스마트팩토리는 자동화가 아니라, AI를 위한 준비다 FA저널</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 스마트팩토리, 자동화) 일치</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: FA저널</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMia0FVX3lxTE5xcnpib0tEMTlMYWNTbXVQMlNDWHg0b1BZbEJtalNla3VBbENxTHRqTFZ6eE01VWY5VFUyU2xaaGFwdVRld3dCTUZlMnRxTmNmN0dUY3YtQllVZTNQaHNLWlQtVUZHel9jSlU4?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+                <div class="top-card">
+                    <div class="rank-badge">#5 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-09-19</span>
+                        </div>
+                        <h3 class="top-card-title">제조 AX, 고정설비 넘어 피지컬 AI로 비정형 작업까지 확장해야 - 산업일보</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 16%;"></div>
+                            </div>
+                            <span class="score-text">16점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">제조 AX, 고정설비 넘어 피지컬 AI로 비정형 작업까지 확장해야 산업일보</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 제조 AX) 일치</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: 산업일보</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMiREFVX3lxTFBuUGYweHNRb1hFdzZJS2NOczhYTUlBX2NWOXJ2ekdvVk1pbEZPOUNUTXQyeFBGaVR2U3BiV0VFWHNJa0Rn?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+                <div class="top-card">
+                    <div class="rank-badge">#6 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-09-19</span>
+                        </div>
+                        <h3 class="top-card-title">[특집/향후 10년 한국의 수출을 이끌 차세대 산업 시리즈 No.14 스마트팩토리] “공장이 스스로 판단하고 움직인다”…AI 스마트팩토리, 한국 수출의 새 성장엔진 - 코리아포스트 한글판</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 16%;"></div>
+                            </div>
+                            <span class="score-text">16점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">[특집/향후 10년 한국의 수출을 이끌 차세대 산업 시리즈 No.14 스마트팩토리] “공장이 스스로 판단하고 움직인다”…AI 스마트팩토리, 한국 수출의 새 성장엔진 코리아포스트 한글판</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 스마트팩토리) 일치</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: 코리아포스트 한글판</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTE05WE83bWV6M3ktak1jZ0xoQnp2cGgxazFmWDZydzR3Nk1zQ050X002ei1WeVNJS1NYamc0TkIzR1YzcHlSX25MVDhHTENUWjVsVy1pSDFwUlJVTllpSTNFTFhxR1dLQ2pKUkJRNm5B?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+                <div class="top-card">
+                    <div class="rank-badge">#7 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-09-19</span>
+                        </div>
+                        <h3 class="top-card-title">네이버클라우드 “AI 통제권은 군이…신속 전력화는 민간 기술로” - IT비즈뉴스</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 16%;"></div>
+                            </div>
+                            <span class="score-text">16점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">네이버클라우드 “AI 통제권은 군이…신속 전력화는 민간 기술로” IT비즈뉴스</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 클라우드) 일치</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: IT비즈뉴스</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE9BUmQ2WGhfcnRrbWZRVThNeW5ESm83c3JkOXB3SWk4ckxfbDVYV3lnMXRDSDY3WWY1WWIyMnktai1hOXVrVGhLc3lHdnVSUHQ1SWx4aVNZLWtXNFlIajJjWDBuWEVxb0NsZzhMcQ?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+                <div class="top-card">
+                    <div class="rank-badge">#8 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-09-19</span>
+                        </div>
+                        <h3 class="top-card-title">엔비디아 투자받은 엔스케일, 美 상장 공식화···AI 클라우드 몸집 키운다 - 뉴스웨이</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 16%;"></div>
+                            </div>
+                            <span class="score-text">16점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">엔비디아 투자받은 엔스케일, 美 상장 공식화···AI 클라우드 몸집 키운다 뉴스웨이</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 클라우드) 일치</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: 뉴스웨이</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTFBtREllcWVFVXJHY0lCV19sR2dENVlUWU1sVVhET1hUZUlsX3NDQzlXNTdDaE9wYms4YktJbFZBamN1N1pLM2JDeHJ4WnlyUDRkVV9IMXYxNlRxZmVvaDdGaThxVjVrWGRIRWc?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+                <div class="top-card">
+                    <div class="rank-badge">#9 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-09-18</span>
+                        </div>
+                        <h3 class="top-card-title">"AI 위험" 경고한 앤스로픽, 생물학 실험실 구축…로봇 자동화까지 - 마켓인</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 16%;"></div>
+                            </div>
+                            <span class="score-text">16점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">"AI 위험" 경고한 앤스로픽, 생물학 실험실 구축…로봇 자동화까지 마켓인</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 자동화) 일치</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: 마켓인</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE1IYm9wTGJWR3p1NDJBajJfX2hnc1JJeTZJdlFwd2ZqeHNueWtTNzZfR3ZUOHRkaGcwdHluclhIV1NHbjRHMkg3VG9xLXlqRXFVNko3RlpDVDY1aFVnaVRnWHRaVnYtbXJnNGdISU1PWFlZejQ?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+                <div class="top-card">
+                    <div class="rank-badge">#10 TOP PICK</div>
+                    <div class="top-card-header">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span class="badge-cat 시장동향">시장동향</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">2026-09-18</span>
+                        </div>
+                        <h3 class="top-card-title">제주도 문승환, ‘AI 행정 자동화’로 행안부 수상 - 제주의소리</h3>
+                        
+                        <div class="score-bar-wrap">
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: 16%;"></div>
+                            </div>
+                            <span class="score-text">16점</span>
+                        </div>
+                    </div>
+
+                    <p class="top-card-desc">제주도 문승환, ‘AI 행정 자동화’로 행안부 수상 제주의소리</p>
+                    <div class="top-card-reason">💡 <strong>추천 사유:</strong> 핵심 기술 키워드(AI, 자동화) 일치</div>
+
+                    <div class="top-card-footer">
+                        <span>출처: 제주의소리</span>
+                        
+                        <a href="https://news.google.com/rss/articles/CBMia0FVX3lxTE9kdWJTaTREYVV6dEtOMWx1M1Z2YWxnZzZTWE1OcWNzaWVscC1BTC1fbklZUldVWjhYSElGS0hIRnY3VTVaaDU0NHI2TFpjRE9UaWVpLUhXX1lOd0lmZDhNUlN6bVpOSmNqR0hR?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">원문 보기 ↗</a>
+                        
+                    </div>
+                </div>
+                
+            </div>
+        </section>
+
+        <!-- Full Recommended List Table -->
+        <section>
+            <div class="section-header">
+                <h2 class="section-title">📋 상위 30건 전체 추천 목록</h2>
+            </div>
+
+            <div class="table-controls">
+                <input type="text" id="searchInput" class="search-input" placeholder="기사 제목, 추천 사유, 키워드 검색...">
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">전체 카테고리</option>
+                    <option value="경쟁사">경쟁사</option>
+                    <option value="시장동향">시장동향</option>
+                    <option value="지원사업">지원사업</option>
+                </select>
+            </div>
+
+            <div class="table-wrap">
+                <table id="newsTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">순위</th>
+                            <th style="width: 90px;">카테고리</th>
+                            <th>기사 제목 & 추천 사유</th>
+                            <th style="width: 80px;">적합도</th>
+                            <th style="width: 100px;">출처 / 일자</th>
+                            <th style="width: 80px; text-align: center;">링크</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">1</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">공정 자동화 넘어 '제조AI'로… 부산, 스마트공장 2.0 대전환 속도 - 폴리뉴스 Polinews</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치 | 정부/R&D 지원사업(스마트공장) 연계</div>
+                            </td>
+                            <td><strong style="color: #34d399;">24점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">폴리뉴스 Polinews</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTE54RGtJMlZZU3N0YkhISzlqa3pKeVZvT09waDctTXZ4MlMtUnFxOXV6QTh5TFc4UklycHZWMGRnU1ZNNGdZNFd5Y0dhc2IwZXRUaTMzWmswenJfSDRtZjMtOWtYS0V1TWlrc3MyRnpn0gFyQVVfeXFMT2g1YjM0REtrQklFRUNRX3hqWENDSV82SXh2eUlHQ09oeXczNURyQWNaVlliQ0l1VHVQdDFzcC1CVG1EZkxab1hqa2hVcWU0dXNMZENmS01GbzhObm4wamkyRVdtdk05SkRJMVV4ZGcwLUtn?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">2</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">AI 스마트팩토리와 사출성형 자동화 - 플라스틱코리아</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 스마트팩토리, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">24점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">플라스틱코리아</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-07-10</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMicEFVX3lxTFBBWXdXWTN1SnFwY3N0Z1RXSF9VazBZVWhrOWhNTFBkQ1lScnNKLUZhTllkWEFDcjA4ZzFmZ2xpdW82a1VXNFBWMGZHVThOYzNiMWxITFgtZ3V2WEVvZEttNnFxLXc0QWhFYk1KbzVNY1fSAXRBVV95cUxPYzlBVVZyY1NiN19na2N4SjZRbjJleUFuX1ViVnhPT2tFU19zblFaN2owbkNYWFdVdUZSdkdpT3oxbnJodGxHVjBHSTl4c1FvTUFoWFNjYVNscXhLUWdhS3ZUSWw4aGR6UU5tNTRucDZBN0czSg?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">3</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">[스마트팩토리 특집-①] LG전자, 단순 자동화 넘어 ‘AI 팩토리’로 진화…피지컬 AI·로봇 생태계 정조준 - 테크월드</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 스마트팩토리, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">24점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">테크월드</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-07-08</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE5ZcHJQY1BTNkZ6ZlMtcFZPMU5sb20wZW1IRlZUZGZtWDFNVzltMzVzVm5fU1hjY3ZscU4wSmZOdFh5eTNyd2FsTEw5UEZYZHQzLW1BREFHdFY1UnU1NEpQLTNrNUdva2pR?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">4</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">[칼럼] 스마트팩토리는 자동화가 아니라, AI를 위한 준비다 - FA저널</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 스마트팩토리, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">24점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">FA저널</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-05-27</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMia0FVX3lxTE5xcnpib0tEMTlMYWNTbXVQMlNDWHg0b1BZbEJtalNla3VBbENxTHRqTFZ6eE01VWY5VFUyU2xaaGFwdVRld3dCTUZlMnRxTmNmN0dUY3YtQllVZTNQaHNLWlQtVUZHel9jSlU4?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">5</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">제조 AX, 고정설비 넘어 피지컬 AI로 비정형 작업까지 확장해야 - 산업일보</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 제조 AX) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">산업일보</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-19</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiREFVX3lxTFBuUGYweHNRb1hFdzZJS2NOczhYTUlBX2NWOXJ2ekdvVk1pbEZPOUNUTXQyeFBGaVR2U3BiV0VFWHNJa0Rn?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">6</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">[특집/향후 10년 한국의 수출을 이끌 차세대 산업 시리즈 No.14 스마트팩토리] “공장이 스스로 판단하고 움직인다”…AI 스마트팩토리, 한국 수출의 새 성장엔진 - 코리아포스트 한글판</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 스마트팩토리) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">코리아포스트 한글판</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-19</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTE05WE83bWV6M3ktak1jZ0xoQnp2cGgxazFmWDZydzR3Nk1zQ050X002ei1WeVNJS1NYamc0TkIzR1YzcHlSX25MVDhHTENUWjVsVy1pSDFwUlJVTllpSTNFTFhxR1dLQ2pKUkJRNm5B?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">7</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">네이버클라우드 “AI 통제권은 군이…신속 전력화는 민간 기술로” - IT비즈뉴스</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">IT비즈뉴스</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-19</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE9BUmQ2WGhfcnRrbWZRVThNeW5ESm83c3JkOXB3SWk4ckxfbDVYV3lnMXRDSDY3WWY1WWIyMnktai1hOXVrVGhLc3lHdnVSUHQ1SWx4aVNZLWtXNFlIajJjWDBuWEVxb0NsZzhMcQ?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">8</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">엔비디아 투자받은 엔스케일, 美 상장 공식화···AI 클라우드 몸집 키운다 - 뉴스웨이</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">뉴스웨이</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-19</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTFBtREllcWVFVXJHY0lCV19sR2dENVlUWU1sVVhET1hUZUlsX3NDQzlXNTdDaE9wYms4YktJbFZBamN1N1pLM2JDeHJ4WnlyUDRkVV9IMXYxNlRxZmVvaDdGaThxVjVrWGRIRWc?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">9</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">"AI 위험" 경고한 앤스로픽, 생물학 실험실 구축…로봇 자동화까지 - 마켓인</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">마켓인</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTE1IYm9wTGJWR3p1NDJBajJfX2hnc1JJeTZJdlFwd2ZqeHNueWtTNzZfR3ZUOHRkaGcwdHluclhIV1NHbjRHMkg3VG9xLXlqRXFVNko3RlpDVDY1aFVnaVRnWHRaVnYtbXJnNGdISU1PWFlZejQ?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">10</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">제주도 문승환, ‘AI 행정 자동화’로 행안부 수상 - 제주의소리</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">제주의소리</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMia0FVX3lxTE9kdWJTaTREYVV6dEtOMWx1M1Z2YWxnZzZTWE1OcWNzaWVscC1BTC1fbklZUldVWjhYSElGS0hIRnY3VTVaaDU0NHI2TFpjRE9UaWVpLUhXX1lOd0lmZDhNUlN6bVpOSmNqR0hR?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">11</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">AI가 스스로 진화한다…앤트로픽, 차세대 버전 개발 26% 자동화 - CBC뉴스</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">CBC뉴스</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTE5JMGEtdEY3REZHSWdKd05NdVdLT1g5QUI3VVZVOVVNRXNsbHdhaVJlTW51bWd1UzYxVkRucXhhRUxIeTVkRW9uZHlReWtTLVdIc2VjVnpwN0ZLZFBhZTVFTGhyWHlNV3Jj?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">12</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">"AI 위험" 경고한 앤스로픽, 생물학 실험실 구축…로봇 자동화까지 - edaily.co.kr</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">edaily.co.kr</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMigAFBVV95cUxQeGZ0ZVowbkFPR3BzZU85eFI5Qi1sZ3NmMGl1bzlQSmk4NExlWG5ZZXVINW9jMERrVEtmOElUUUxObkR4QXo1NV9pS3ZPekl3VWk5TlJ4eGhLTlhhSEsydnZ1RVNILUJ5X0YzckVfQTVqVUk0TUdkdmJ6S0QyLUJxQw?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">13</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">AI 자동화 시대, 미국 근로자 6~7% 대체·50% 이상 업무 재편 전망—한국 기업의 대응 전략은 - 얼리어답터뉴스</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">얼리어답터뉴스</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiSkFVX3lxTE94a0VVWkZBb1RPdDFpUG5ReEt2eGNtSWJURm5QSldiSjdUcTJKT2c2Vy1lcHlxYzhaUkNaWERNenctenFvTm01emFR?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">14</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">AI 자동화 물결, 한국 노동시장은 어떻게 대비해야 하는가 - 얼리어답터뉴스</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">얼리어답터뉴스</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiSkFVX3lxTE9FWVJ4cDZaM1VPWWJqTGpmRm9BYVpsMDdELUpOTEt6MDFMcUJyc0pCLXlHcjVSbWJTUjhFZGhpN3lSU0JPOVc5bExR?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">15</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">클라우드플레어, 실시간 봇 방어 기능 공개…"자동화 공격 비용↑" - 지디넷코리아</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(자동화, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">지디넷코리아</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiVkFVX3lxTE83YzdsMWVRa2RweHFuVW5Td3lyZHB5Mml6VU9PWktjQldOb2F2MGswQU51RGN0QkY1UXpHNWlpOXdGcEFCREc4UEpSQTJmVHVzZXBJUThn?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">16</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">맥락과 조정: 기업 자동화에서 놓친 레이어 - Unite.AI</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">Unite.AI</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMic0FVX3lxTFBrYlhPejNnN3ZIelBfRlI4Ty01OG9IX1hwTUw3anBPT3hQQVkta0NqNmNzSlJzQ3Z3T2JkZF9tRUxJSlo0TWVhNWtxMWxTRUpfeE0taTJtQThCLVpKLTJNM1VaZU5vQ21rSTRZTjNPX1k2TXM?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">17</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">제주도 문승환, ‘AI 행정 자동화’로 행안부 수상 - v.daum.net</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">v.daum.net</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiT0FVX3lxTFBOcUJWUGdNZUIzRmZjanBCVjlQYnctUExNS25JWGVWM0NyZHlWdGFCZWlLdjl5dE5zOV9VRUhSZFhoaTVVcUp3aXV0TFY3b1k?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">18</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">[GPT-5.6 Sol, 양자 컴퓨팅 실험 자동화 지원…MIT 연구진 "실제 큐비트와 작동"] 연구소 내 다른 곳에서 일하는 동안 에이전트들이 몇 시간 동안 일상적인 측정을 수행하도록 허용할 수 - AI넷</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">AI넷</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiQEFVX3lxTE5CSVlyRTFmdXdmMG9JdTRnY3NzLXA4b2hxM2pEWVhabmN5ZVd0d0J5ZEFpS0tJd1NPX2lNZFF1NjY?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">19</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">AI스페라, MS 파운드리 에이전트 적용…AITEM 보안 운영 자동화 강화 - 데일리시큐</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">데일리시큐</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE9pR21OeFhhMjFFRXBZaUc1QlZkUHpJc0RodUlTOGg1MWdiX1dSZDZyMk1CTEVKZHBVbko0UnBibjVtcUVvdXJjSkpmV0lpYzBXdzZjeWVjMWg2aFZib1RsOEpqVmN0bXBBbFotXw?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">20</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">목포상의, AI로 업무자동화···재직자 실무교육 - 더리포트</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 자동화) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">더리포트</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMibkFVX3lxTE5VSkxZTGtEYW00M25vblZlajZoYXBOUVQtbHVZVzNNVUw5T1IyT0RDY1AtUXk0VDByUFRSVVgxTGJtbDFkNUtQekszUGszZnM0Rm81Y1RueEhfZTNEeUc4LXlrQVZEellvbkxGTzVR?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">21</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">오케스트로 클라우드-KT 맞손…AI 전환부터 데이터센터까지 협력 - 머니투데이 - 머니투데이</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">머니투데이</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE41WEplOHFzbE1HT0lyMWJKRWYtYkdIdXBnUVdVbHJmU3pST0xiRW8xR2w3dEU5ektKUkczY2ZMUGFtcXRfTzc2RGppS3YzSlBheXl3TzdXOVVKbXczbV9MdS1vSUJOOGkweXfSAW9BVV95cUxPNjFvY1ZsbmlQS3JlRU9RV1FxSWdTdGl0OUpyZDNwWmpMQnpaSzM0cU1IZnVKRmZWaVFQM01CSW5ZeWFFZWdJX05QUlAtWF9XbTMtYi1Lbk16bThaN0lWWDctcjZ6c09DanBZQkE2UUE?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">22</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">"민간이 개발하고 軍이 완성"…네이버클라우드, 국방 AI 개발안 제시 - 조선일보</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">조선일보</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMigwFBVV95cUxNTzVXTEtDdUlFNFNyZTJzdllnaGxtemRmd3Z2UGtFWmNDNkdocHltS1c2V0UwUlBJRDhuT3RSWk9DR2R4U20wc0VldEt3TnVYU3h5cnFjRjNVRzAzTVczLWVuc0pxV1BKWmNRYTduMGk5TUowSGN0cFR2RGFHRXU1OHhGdw?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">23</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">클루커스, 중소기업 AI·클라우드 문턱 낮춘다…MS 애저·코파일럿 지원 강화 - 지디넷코리아</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">지디넷코리아</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiVkFVX3lxTFB6SjByXzlYMjNLVTM3T20weVhwVDNrWVFId24tQlBpOVBZMk9kSlFFREZ3eEVrZ1JDZnFWdGNjSXl3WEdkcEdoa3I4S1pmUHZ6cUsxeW9n?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">24</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">네이버클라우드, 국방 AI 진출 앞세운 경쟁력 '독자 기술' [현장+] - bloter.net</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">bloter.net</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiaEFVX3lxTFByOTJMTVZGbWlPaDdPMk5LUVc3NVRTUzJyajRzemVVUVNjVXVOaVlZdERQMDgyWW1JcTIzZFBoOENsUGVoUDVFTHJic0l3TmFuR0NCa0k4bTUwZ01zd2lnejZxN05mY0t20gFsQVVfeXFMTTlIUFVQVlBkQVYtczRFNnZ0a0w3TDhHRHVoSmJZeVRJcnltQzlLTi1FbU9GT21OVXoyb200R0RxNTZUdllfTEJoSllVYlFlNXpPSE1WNXN1R0hjVTNtcFQ5SnhFZ2NkZ3h0U25x?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">25</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">네이버클라우드, 국방 AX 위한 '소버린 AI' 전략 공개 - 매일일보</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">매일일보</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiZEFVX3lxTE9qeWd5UlhOMVFwSTJfVnVhdUt4V1ZsVEdDNGlQOExRSHdOZ2JKdHE2azRtUW1QWFA4NFBUczIzemxuMmRNREJ5UzJFUnI0ZDZnMzA2ai1Cb2tBM01ydGpxd0o2NUvSAWhBVV95cUxNVnNlQ3l2UjNJZFc2UzRDczVJZE50dmhZb3JadE80MEFwRDFCdDJUMUF5TDFYNGhEZ1JFazFDaUdHeWJMT1hFWFA3N0ZpSjZmbXpvcHJSUll2ZFVlRmFCcVRETk5NY09JMQ?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">26</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">네이버클라우드, 군이 통제하는 ‘국방 소버린 AI’ 전략 제시 - 서울경제TV</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">서울경제TV</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiZEFVX3lxTFB3eWhGdGxOcjVMR0czZk1zekhodXpfb1psS3ZIN3pBQ05qTXY1ajB0dmNuUjJ5VjJHeWlyNWlFZGhiWUtueExGcWI3RmtYNkpSY0lFZllDVmplaHpoODcyV3Bhdkg?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">27</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">오케스트로 클라우드, KT와 AI 사업 키운다…AIDC·GPU 전방위 협력 - 지디넷코리아</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">지디넷코리아</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiVkFVX3lxTFBWVVFqMDcwUUtibnloeXpNOFpJNndJYlVSRFh5QjFkNGtUeW5abHpTYXJTUDNRek1URVBmNWhabUlvZm83NlRKRDI3RnRBQ3pXRm14aGhR?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">28</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">"폐쇄망서 데이터·모델 군이 장악"…네이버클라우드, '디펜스 AI' 로드맵 공개 - 글로벌이코노믹</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">글로벌이코노믹</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMif0FVX3lxTE1HVmtEWnktUy1zT0w4d3p1OHljSEV1S2JuWGE4anhRZW1QdWZsOVEwdHZYdjBpckZZQmZrRmozbmF3dDZvejF3WnhBb3RONnNTM2Zpb2lyd2E4RnpaU3p2VXpaa1dydmJUZTVYQUY4MGtIR3pvTWNGdEZNT1VSQzA?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">29</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">오케스트로 클라우드-KT, AI 서비스 및 데이터센터·GPU 인프라 MOU 체결 - 헬로티</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">헬로티</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiX0FVX3lxTE1EZ2owZGhJcDNxS2UxRGNiWm9KM0NVTzl3YVQwR0hENWg5R25lUk5heVJ3RVJGVE9fQzBzM05faUxJMGFnNjEtY3FQS0NJT1NXbGVQSXA1cmZ3alliaUxz?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                        <tr data-category="시장동향">
+                            <td style="font-weight: 700; color: var(--text-muted);">30</td>
+                            <td><span class="badge-cat 시장동향">시장동향</span></td>
+                            <td>
+                                <div style="font-weight: 600; color: #f9fafb; margin-bottom: 4px;">네이버클라우드 “AI 풀스택·FDE 동원해 국방 AX 지원할 것” - AI타임스</div>
+                                <div style="font-size: 12px; color: #9ca3af;">핵심 기술 키워드(AI, 클라우드) 일치</div>
+                            </td>
+                            <td><strong style="color: #34d399;">16점</strong></td>
+                            <td>
+                                <div style="font-size: 12px;">AI타임스</div>
+                                <div style="font-size: 11px; color: var(--text-muted);">2026-09-18</div>
+                            </td>
+                            <td style="text-align: center;">
+                                
+                                <a href="https://news.google.com/rss/articles/CBMiakFVX3lxTE83Vkd0WF82eW1MWmtyV0JiM0dpQWtWUHFQaXZJb2ZEb1RKVUxJcUMzR3lNSGlJbG40cWtJREZMV0Y2VmcwV09XUGNBcHNIUWV6NHdLM2MyTENEZndRY3FRaUNfWGFzNE9tYnc?oc=5" target="_blank" rel="noopener noreferrer" class="btn-link">보기 ↗</a>
+                                
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Generated by <strong>Project 1: Market Agent</strong> &bull; Powered by Antigravity Automation &bull; Hosted on GitHub Pages</p>
+        </div>
+    </footer>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const rows = document.querySelectorAll('#newsTable tbody tr');
+
+        function filterTable() {
+            const query = searchInput.value.toLowerCase().trim();
+            const cat = categoryFilter.value;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const rowCat = row.getAttribute('data-category');
+                const matchQuery = !query || text.includes(query);
+                const matchCat = !cat || rowCat === cat;
+
+                if (matchQuery && matchCat) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', filterTable);
+        categoryFilter.addEventListener('change', filterTable);
+    </script>
+</body>
+</html>
