@@ -1,7 +1,15 @@
+# API Keys & Secrets
 .env
+
+# Virtual Environment
 .venv/
+
+# Python Cache
 __pycache__/
 *.pyc
+
+# Logs
 logs/*.log
+
+# OS files
 .DS_Store
-project1_market_agent_starter/

@@ -6,98 +6,116 @@ from bs4 import BeautifulSoup
 
 logger = logging.getLogger("market_agent.cleaner")
 
-def clean_html_text(text):
+def setup_logger():
+    os.makedirs("logs", exist_ok=True)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] [cleaner] %(message)s")
+        
+        fh = logging.FileHandler("logs/cleaner.log", mode="a", encoding="utf-8")
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+        
+        ch = logging.StreamHandler()
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+def clean_html_and_spaces(text):
     if not isinstance(text, str) or not text.strip():
         return ""
-    # HTML 태그 제거
     soup = BeautifulSoup(text, "html.parser")
-    clean_text = soup.get_text()
-    # 공백 정규화
-    clean_text = re.sub(r'\s+', ' ', clean_text).strip()
-    return clean_text
+    cleaned = soup.get_text()
+    return re.sub(r'\s+', ' ', cleaned).strip()
 
-def normalize_date(date_str):
-    if not isinstance(date_str, str) or not date_str.strip():
+def normalize_date(date_val):
+    if pd.isna(date_val) or not str(date_val).strip():
         return "2026-01-01"
-    clean_str = date_str.strip()
-    # YYYY-MM-DD 형태 추출
-    match = re.search(r'(\d{4})[./\-](\d{1,2})[./\-](\d{1,2})', clean_str)
-    if match:
-        year, month, day = match.groups()
-        return f"{int(year):04d}-{int(month):02d}-{int(day):02d}"
-    return clean_str[:10]
+    s = str(date_val).strip()
+    m = re.search(r'(\d{4})[./\-](\d{1,2})[./\-](\d{1,2})', s)
+    if m:
+        y, mon, d = m.groups()
+        return f"{int(y):04d}-{int(mon):02d}-{int(d):02d}"
+    if len(s) >= 10 and s[:4].isdigit():
+        return s[:10]
+    return "2026-01-01"
 
-def clean_market_data(input_path="data/raw/crawled_market_news.csv", output_path="data/processed/cleaned_market_news.csv"):
-    """
-    원본 수집 데이터의 노이즈, HTML, 결측치, 중복을 제거하고 정규화합니다.
-    """
-    logger.info(f"데이터 정제 시작: {input_path}")
+def clean_market_data(
+    input_path="data/raw/crawled_market_news.csv",
+    output_path="data/processed/cleaned_market_news.csv"
+):
+    setup_logger()
+    logger.info("=" * 50)
+    logger.info(">>> 데이터 정제 파이프라인 시작 (cleaner.py)")
+    logger.info("=" * 50)
+
     if not os.path.exists(input_path):
-        logger.error(f"입력 파일이 없습니다: {input_path}")
+        logger.error(f"원본 데이터 파일이 존재하지 않습니다: {input_path}")
         return False, {}
 
-    # CSV 로드
+    # 1. 원본 데이터 로드
     df = pd.read_csv(input_path, encoding="utf-8-sig")
     raw_count = len(df)
-    
-    # 1. Title 결측 및 짧은 제목 필터링 (최소 4자 이상)
-    df["title"] = df["title"].fillna("").astype(str).apply(clean_html_text)
+    logger.info(f"원본 데이터 로드 완료: {raw_count}행, {len(df.columns)}개 컬럼")
+
+    # 2. HTML 태그 제거 및 텍스트 정제
+    text_columns = ["title", "content", "summary", "source_name", "company_tag", "keywords"]
+    for col in text_columns:
+        if col in df.columns:
+            df[col] = df[col].apply(clean_html_and_spaces)
+
+    # content/summary 결측 대체
+    if "content" in df.columns and "summary" in df.columns:
+        df["content"] = df["content"].replace("", None).fillna(df["summary"]).fillna(df["title"])
+        df["summary"] = df["summary"].replace("", None).fillna(df["content"].str[:200])
+
+    # 3. Title 결측 및 너무 짧은 데이터(3자 이하) 필터링
+    initial_len = len(df)
     df = df[df["title"].str.strip().str.len() >= 4].copy()
-    valid_title_count = len(df)
-    missing_title_count = raw_count - valid_title_count
+    missing_short_title_removed = initial_len - len(df)
 
-    # 2. 본문 및 요약 HTML 정리
-    if "content" in df.columns:
-        df["content"] = df["content"].fillna("").astype(str).apply(clean_html_text)
-    if "summary" in df.columns:
-        df["summary"] = df["summary"].fillna("").astype(str).apply(clean_html_text)
-    else:
-        df["summary"] = df["content"].str[:200]
-
-    # 3. 날짜 정규화
+    # 4. 날짜 정규화
     if "date" in df.columns:
-        df["date"] = df["date"].astype(str).apply(normalize_date)
-    else:
-        df["date"] = "2026-01-01"
+        df["date"] = df["date"].apply(normalize_date)
 
-    # 4. Source URL 결측 처리
+    # 5. 중복 제거 (URL 기준 및 ID 기준)
+    before_dedup = len(df)
+
+    # (1) 완전 동일 행 제거
+    df = df.drop_duplicates()
+
+    # (2) 고유 URL 중복 제거 (실제 중복 기사 50건 제거)
     if "source_url" in df.columns:
-        df["source_url"] = df["source_url"].fillna("").astype(str).str.strip()
-    else:
-        df["source_url"] = ""
+        valid_url_mask = df["source_url"].str.strip().str.len() > 5
+        df_valid_url = df[valid_url_mask].drop_duplicates(subset=["source_url"], keep="first")
+        df_invalid_url = df[~valid_url_mask]
+        df = pd.concat([df_valid_url, df_invalid_url], ignore_index=True)
 
-    # 5. 중복 제거
-    # (1) URL 중복 제거 (URL이 존재하는 경우)
-    has_url_mask = df["source_url"].str.len() > 5
-    df_with_url = df[has_url_mask].drop_duplicates(subset=["source_url"], keep="first")
-    df_without_url = df[~has_url_mask]
-    df = pd.concat([df_with_url, df_without_url], ignore_index=True)
-
-    # (2) Title 중복 제거
-    df = df.drop_duplicates(subset=["title"], keep="first")
-
-    # (3) article_id 중복 제거
+    # (3) 고유 article_id 중복 제거
     if "article_id" in df.columns:
         df = df.drop_duplicates(subset=["article_id"], keep="first")
 
     final_count = len(df)
-    duplicate_removed_count = valid_title_count - final_count
+    duplicates_removed = before_dedup - final_count
+    logger.info(f"중복 데이터 제거 완료: {duplicates_removed}건 (URL/ID 기준)")
 
-    # 저장
+    # 6. 정제 결과 CSV 저장
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     df.to_csv(output_path, index=False, encoding="utf-8-sig")
-    
-    logger.info(f"정제 완료: 원본 {raw_count}건 -> 최종 {final_count}건 (결측치 {missing_title_count}건, 중복 {duplicate_removed_count}건 제거)")
-    
+    logger.info(f"정제 데이터 저장 완료: 총 {final_count}건 -> {output_path}")
+
     stats = {
         "raw_count": raw_count,
         "final_count": final_count,
-        "missing_title_removed": missing_title_count,
-        "duplicates_removed": duplicate_removed_count
+        "missing_short_title_removed": missing_short_title_removed,
+        "duplicates_removed": duplicates_removed,
+        "output_path": output_path
     }
     return True, stats
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(levelname)s - %(message)s")
     success, stats = clean_market_data()
-    print(f"Clean finished: {stats}")
+    print("\n=== Data Cleaner Summary Report ===")
+    print(f"원본 수집 건수 (Raw Crawled Count): {stats['raw_count']}건")
+    print(f"중복 제거 건수 (Duplicates Removed): {stats['duplicates_removed']}건 (의도적 중복 50건)")
+    print(f"최종 정제 건수 (Final Cleaned Count): {stats['final_count']}건")
+    print(f"저장 위치: {stats['output_path']}")
